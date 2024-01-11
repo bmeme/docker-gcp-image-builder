@@ -1,5 +1,5 @@
 FROM google/cloud-sdk:455.0.0-alpine as googlecloud-cli
-FROM gcr.io/kaniko-project/executor AS kaniko
+FROM gcr.io/kaniko-project/executor:v1.19.2 AS kaniko
 
 FROM docker:24.0.7
 LABEL com.bmeme.project.family='GKE-Docker Builder Image' \

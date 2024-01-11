@@ -1,0 +1,81 @@
+---
+name: CI Bmeme GCP Image Builder container image
+on:
+  push:
+    branches:
+      - "*"
+      - "*/*"
+      - "**"
+      - "!main"
+
+env:
+  registry: docker.io
+  repository: bmeme/gcp-image-builder
+
+jobs:
+
+
+  build:
+    name: Build and test Bmeme GCP Image Builder container image using Docker
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Check out the codebase.
+        uses: actions/checkout@v3
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Lint Dockerfile
+        id: lint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./Dockerfile
+          config: .hadolint.yaml
+      -
+        name: Build image
+        id: build
+        run: |
+          {
+            TAG=$(cat Dockerfile | grep com.bmeme.project.version | awk -F\' '{print $2}');\
+            \
+            docker build \
+              -t ${{ env.registry }}/${{ env.repository }}:${TAG} \
+              -t ${{ env.registry }}/${{ env.repository }}:latest \
+              -f ./Dockerfile .
+          }
+      -
+        name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        id: trivy
+        with:
+          image-ref: ${{ env.registry }}/${{ env.repository }}:latest
+          format: 'sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL'
+          output: 'trivy-results-gke-helm-deployer.sarif'
+      -
+        name: Upload Trivy scan results to GitHub Security tab
+        id: trivy-upload
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results-gke-helm-deployer.sarif'
+      -
+        name: Scan image
+        id: scan
+        uses: anchore/scan-action@v3
+        with:
+          image: ${{ env.registry }}/${{ env.repository }}:latest
+          severity-cutoff: critical
+          fail-build: false
+      -
+        name: Upload Anchore scan SARIF report
+        id: scan-upload
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
