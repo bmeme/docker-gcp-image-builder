@@ -29,7 +29,7 @@ COPY scripts/authenticate.sh /usr/bin/authenticate
 RUN set -eux; \
   chmod u+x /usr/bin/authenticate; \
   \
-  apk add --no-cache curl python3 build-base docker-compose; \
+  apk add --no-cache curl python3 build-base docker-compose git; \
   \
   gcloud config set core/disable_usage_reporting true; \
   gcloud config set component_manager/disable_update_check true; \
