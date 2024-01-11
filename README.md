@@ -13,6 +13,7 @@ OCI image, based on the official [Docker image](https://hub.docker.com/_/docker)
 * build-base tools
 * python 3.11
 * docker-compose (for backward compatibility)
+* git
 * A script `authenticate` that wraps authentication tasks against Google Cloud and Google Artifact Registry
 
 ## Mandatory environments
