@@ -14,7 +14,6 @@ env:
 
 jobs:
 
-
   build:
     name: Build and test Bmeme GCP Image Builder container image using Docker
     runs-on: ubuntu-latest
@@ -36,17 +35,27 @@ jobs:
           dockerfile: ./Dockerfile
           config: .hadolint.yaml
       -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - 
+        name: Set tag
+        id: vars
+        run: echo "tag=$(cat ./Dockerfile | grep com.bmeme.project.version | awk -F\' '{print $2}')" >> $GITHUB_OUTPUT
+      -
         name: Build image
         id: build
-        run: |
-          {
-            TAG=$(cat Dockerfile | grep com.bmeme.project.version | awk -F\' '{print $2}');\
-            \
-            docker build \
-              -t ${{ env.registry }}/${{ env.repository }}:${TAG} \
-              -t ${{ env.registry }}/${{ env.repository }}:latest \
-              -f ./Dockerfile .
-          }
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          platforms: "linux/arm64,linux/amd64"
+          tags: |
+            ${{ env.registry }}/${{ env.repository }}:${{ steps.vars.outputs.tag }}
+            ${{ env.registry }}/${{ env.repository }}:latest
       -
         name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -62,7 +71,7 @@ jobs:
       -
         name: Upload Trivy scan results to GitHub Security tab
         id: trivy-upload
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results-gke-helm-deployer.sarif'
       -
@@ -76,6 +85,6 @@ jobs:
       -
         name: Upload Anchore scan SARIF report
         id: scan-upload
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
