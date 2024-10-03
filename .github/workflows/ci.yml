@@ -52,7 +52,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          platforms: "linux/arm64,linux/amd64"
+          platforms: "linux/amd64"
           tags: |
             ${{ env.registry }}/${{ env.repository }}:${{ steps.vars.outputs.tag }}
             ${{ env.registry }}/${{ env.repository }}:latest
