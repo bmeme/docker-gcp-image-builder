@@ -1,12 +1,12 @@
-FROM google/cloud-sdk:455.0.0-alpine as googlecloud-cli
+FROM google/cloud-sdk:495.0.0-alpine as googlecloud-cli
 FROM gcr.io/kaniko-project/executor:v1.19.2 AS kaniko
 
 FROM docker:24.0.7
 LABEL com.bmeme.project.family='GKE-Docker Builder Image' \
-  com.bmeme.project.version='455.0.0-24.0.7' \
+  com.bmeme.project.version='495.0.0-24.0.7' \
   com.bmeme.maintainer.1='Daniele Piaggesi <daniele.piaggesi@bmeme.com>' \
   com.bmeme.maintainer.2='Roberto Mariani <roberto.mariani@bmeme.com>' \
-  com.bmeme.refreshedat='2024-01-11'
+  com.bmeme.refreshedat='2024-10-03'
 
 ## Add Google Cloud CLI
 COPY --from=googlecloud-cli /google-cloud-sdk /google-cloud-sdk
