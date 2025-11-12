@@ -1,12 +1,12 @@
-FROM google/cloud-sdk:495.0.0-alpine as googlecloud-cli
-FROM gcr.io/kaniko-project/executor:v1.19.2 AS kaniko
+FROM google/cloud-sdk:547.0.0-alpine AS googlecloud-cli
+FROM gcr.io/kaniko-project/executor:v1.24.0 AS kaniko
 
-FROM docker:24.0.7
+FROM docker:29.0.0
 LABEL com.bmeme.project.family='GKE-Docker Builder Image' \
-  com.bmeme.project.version='495.0.0-24.0.7' \
+  com.bmeme.project.version='547.0.0-29.0.0' \
   com.bmeme.maintainer.1='Daniele Piaggesi <daniele.piaggesi@bmeme.com>' \
   com.bmeme.maintainer.2='Roberto Mariani <roberto.mariani@bmeme.com>' \
-  com.bmeme.refreshedat='2024-10-03'
+  com.bmeme.refreshedat='2025-11-12'
 
 ## Add Google Cloud CLI
 COPY --from=googlecloud-cli /google-cloud-sdk /google-cloud-sdk
@@ -20,7 +20,7 @@ COPY --from=kaniko /etc/nsswitch.conf /etc/nsswitch.conf
 COPY --from=kaniko /kaniko/.docker /kaniko/.docker
 
 ENV PATH="${PATH}:/google-cloud-sdk/bin:/usr/local/bin:/kaniko"
-ENV DOCKER_CONFIG /kaniko/.docker/
+ENV DOCKER_CONFIG=/kaniko/.docker/
 
 ## Add scripts
 COPY scripts/common.sh /root/common.sh
